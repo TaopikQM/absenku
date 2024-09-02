@@ -27,14 +27,14 @@
  } else {
    app = getApp();
  }
- const db = getFirestore(app);
- const storage = getStorage(app);
- const auth = getAuth(app);
+//  const db = getFirestore(app);
+//  const storage = getStorage(app);
+//  const auth = getAuth(app);
  
  // Initialize Realtime Database
  const rtdb = getDatabase(app); // Add this line to initialize Realtime Database
  
- export { db, storage, rtdb,  auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider};
+ export { rtdb};//,db, storage,   auth, signInWithEmailAndPassword, signInWithPopup,  createUserWithEmailAndPassword, GoogleAuthProvider
  /*
  const app = initializeApp(firebaseConfig);
  const db = getFirestore(app);
