@@ -7,10 +7,10 @@ html {
   font-family: "Rubik", sans-serif;
 }
 body {
-  @apply bg-white-500;
+  @apply bg-white;
 }
 p {
-  @apply text-black-500;
+  @apply text-black;
 }
 .animation-hover:after {
   background: none repeat scroll 0 0 transparent;
