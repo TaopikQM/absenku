@@ -170,7 +170,7 @@ const Faces = () => {
     const distanceToKominfo = calculateDistance(currentLocation.lat, currentLocation.lon, kominfoLocation.lat, kominfoLocation.lon);
   
     if (distanceToKominfo > 3) { // Radius batas jarak dalam kilometer
-       await handleOutOfTownAttendance('userId', 'userName'); // Replace with actual user ID and name if available
+       // await handleOutOfTownAttendance('userId', 'userName'); // Replace with actual user ID and name if available
        
         alert('Lokasi Anda tidak sesuai dengan lokasi absensi.');
         setLoading(false);
