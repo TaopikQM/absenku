@@ -6,7 +6,10 @@ import getScrollAnimation from "../utils/getScrollAnimation";
 import ScrollAnimationWrapper from "./Layout/ScrollAnimationWrapper";
 
 import Faces from './Faces';
-
+import AddUsers from "./AddUser";
+import Vdata1 from "./Vdata1";
+import UsersTable from "./UsersTable";
+import Vdata2 from "./Vdata2";
 
 const Hero = ({
   listUser = [
@@ -48,14 +51,17 @@ const Hero = ({
               </p> */}
               
               
-                <ButtonPrimary>
+                {/* <ButtonPrimary>
                   
+                  
+                </ButtonPrimary> */}
+                <button className={"py-3 lg:py-4 px-12 lg:px-16 text-white-500 font-semibold rounded-lg bg-orange-500 hover:shadow-orange-md transition-all outline-none " }>
                   <Faces/>
-                </ButtonPrimary>
+                </button>
 
-               // <button className={"py-3 lg:py-4 px-12 lg:px-16 text-white-500 font-semibold rounded-lg bg-orange-500 hover:shadow-orange-md transition-all outline-none " }>
-               //    <Faces/>
-               //  </button>
+                
+
+                
               
               
               </div>
@@ -72,9 +78,16 @@ const Hero = ({
               </motion.div>
             </div>
           </motion.div>
+
+          
+          <UsersTable/>
+          <Vdata1/>
+          {/* <AddUsers/> */}
+          {/* <Vdata2/> */}
+
       </ScrollAnimationWrapper>
       <div className="relative w-full flex">
-        <ScrollAnimationWrapper
+        {/* <ScrollAnimationWrapper
           className="rounded-lg w-full grid grid-flow-row sm:grid-flow-row grid-cols-1 sm:grid-cols-3 py-9 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-gray-100 bg-white-500 z-10">
           {listUser.map((listUsers, index) => (
             <motion.div
@@ -96,7 +109,7 @@ const Hero = ({
               </div>
             </motion.div>
           ))}
-       </ScrollAnimationWrapper>
+       </ScrollAnimationWrapper> */}
        <div
           className="absolute bg-black-600 opacity-5 w-11/12 roudned-lg h-64 sm:h-48 top-0 mt-8 mx-auto left-0 right-0"
           style={{ filter: "blur(114px)" }}
