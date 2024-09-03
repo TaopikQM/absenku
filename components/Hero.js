@@ -76,10 +76,10 @@ const Hero = ({
           </motion.div>
 
           
-          <UsersTable/>
-          <Vdata1/>
-          {/* <AddUsers/> */}
-          {/* <Vdata2/> */}
+          // <UsersTable/>
+          // <Vdata1/>
+          // {/* <AddUsers/> */}
+          // {/* <Vdata2/> */}
 
       </ScrollAnimationWrapper>
       <div className="relative w-full flex">
