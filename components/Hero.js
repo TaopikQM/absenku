@@ -6,10 +6,6 @@ import getScrollAnimation from "../utils/getScrollAnimation";
 import ScrollAnimationWrapper from "./Layout/ScrollAnimationWrapper";
 
 import Faces from './Faces';
-import AddUsers from "./AddUser";
-import Vdata1 from "./Vdata1";
-import UsersTable from "./UsersTable";
-import Vdata2 from "./Vdata2";
 
 const Hero = ({
   listUser = [
