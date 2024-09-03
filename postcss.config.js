@@ -18,4 +18,12 @@ module.exports = {
     "autoprefixer",
     ...(process.env.NODE_ENV === "production" ? [purgecss] : []),
   ],
+  webpack: (config) => {
+    config.node = {
+      fs: 'empty',
+      net: 'empty',
+      tls: 'empty',
+    };
+    return config;
+  },
 };
