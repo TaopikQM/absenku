@@ -243,7 +243,7 @@ const Faces = () => {
     const minutes = date.getUTCMinutes();
     const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} WIB`;
 
-    const attendanceRef = ref(rtdb, `kp/magang/absen/${userId}/${formattedDate}`);
+    const attendanceRef = ref(rtdb, `kp/magang/absen/${userId}/attendance/${formattedDate}`);
     const attendanceSnapshot = await get(attendanceRef);
 
     if (attendanceSnapshot.exists()) {
@@ -347,7 +347,7 @@ const Faces = () => {
 
           if (userDetails && userDetails.status === 'ACTIVE') {
               // Check if user has already clocked out
-              const attendanceRef = ref(rtdb, `kp/magang/absen/${currentUserId}/${formattedDate}`);
+              const attendanceRef = ref(rtdb, `kp/magang/absen/${currentUserId}/attendance/${formattedDate}`);
               const attendanceSnapshot = await get(attendanceRef);
 
               if (attendanceSnapshot.exists() && attendanceSnapshot.val().timot) {
@@ -385,7 +385,7 @@ const Faces = () => {
     const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} WIB`;
 
     // Path for attendance record
-    const attendanceRef = ref(rtdb, `kp/magang/absen/${userId}/${formattedDate}`);
+    const attendanceRef = ref(rtdb, `kp/magang/absen/${userId}/attendance/${formattedDate}`);
     const attendanceSnapshot = await get(attendanceRef);
 
     if (attendanceSnapshot.exists() && attendanceSnapshot.val().timot) {
@@ -426,7 +426,7 @@ const Faces = () => {
     const timotMinutes = timeOutDate.getUTCMinutes();
     const formattedTimeOut = `${timotHours.toString().padStart(2, '0')}:${timotMinutes.toString().padStart(2, '0')} WIB`;
 
-    const attendanceRef = ref(rtdb, `kp/magang/absen/${userId}/${formattedDate}`);
+    const attendanceRef = ref(rtdb, `kp/magang/absen/${userId}/attendance/${formattedDate}`);
     const attendanceSnapshot = await get(attendanceRef);
 
     if (attendanceSnapshot.exists()) {
