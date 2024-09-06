@@ -116,7 +116,7 @@ const Faces = () => {
     const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
     // Batasan waktu absensi dari jam 06:00 sampai 15:00 WIB di hari kerja (Senin - Jumat)
-    return day >= 1 && day <= 5 && (hours >= 6 && (hours < 24 || (hours === 24 && minutes === 0)));
+    return day >= 1 && day <= 5 && (hours >= 6 && (hours < 9 || (hours === 9 && minutes === 0)));
   };
 
   const isWithinAllowedTimeForPulang = () => {
@@ -126,9 +126,9 @@ const Faces = () => {
 
     // Batasan waktu pulang
     if (day === 5) { // Jumat
-      return hours >= 7 && hours < 17;
-    } else if (day >= 1 && day <= 4) { // Senin - Kamis
       return hours >= 13 && hours < 17;
+    } else if (day >= 1 && day <= 4) { // Senin - Kamis
+      return hours >= 14 && hours < 17;
     }
     return false;
   };
@@ -170,7 +170,7 @@ const Faces = () => {
     const distanceToKominfo = calculateDistance(currentLocation.lat, currentLocation.lon, kominfoLocation.lat, kominfoLocation.lon);
   
     if (distanceToKominfo > 3) { // Radius batas jarak dalam kilometer
-       // await handleOutOfTownAttendance('userId', 'userName'); // Replace with actual user ID and name if available
+      //  await handleOutOfTownAttendance('userId', 'userName'); // Replace with actual user ID and name if available
        
         alert('Lokasi Anda tidak sesuai dengan lokasi absensi.');
         setLoading(false);
@@ -550,33 +550,20 @@ const Faces = () => {
 
   return (
     <>
-      {/* {cameraStarted && (
-        
-      )} */}
+      
       <video id="video" autoPlay muted width="720" height="560" />
-      {/* <button onClick={startVideo}>Start Kamera</button> */}
       {!cameraStarted && (
-        <button onClick={startVideo} disabled={loading} type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">{loading ? 'Loading...' : 'Start Kamera'}</button>
-
-        // <button onClick={startVideo} disabled={loading}>
-        //   {loading ? 'Loading...' : 'Start Kamera'}
-        // </button>
+        <span onClick={startVideo} disabled={loading} type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">{loading ? 'Loading...' : 'Start Kamera'}</span> 
       )}
       <br/>
-      <button onClick={handleScan} disabled={loading} type="button" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">{loading ? 'Loading...' : 'Absensi Masuk'}</button>
-
-      {/* <button onClick={handleScan} disabled={loading}>{loading ? 'Loading...' : 'Absensi Masuk'}</button> */}
+      <span onClick={handleScan} disabled={loading} type="button" className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">{loading ? 'Loading...' : 'Absensi Masuk'}</span>
       <br/>
-      <button onClick={handleRegister} disabled={loading} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">{loading ? 'Loading...' : 'Registrasi'}</button>
-
+      <span onClick={handleRegister} disabled={loading} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">{loading ? 'Loading...' : 'Registrasi'}</span>
       {isRegistered && <></>}
-      {/* <button onClick={handleRegister} disabled={loading}>{loading ? 'Loading...' : 'Registrasi'}</button> */}
       <br/>
-      <button onClick={handlePulang} disabled={loading} type="button" className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900">{loading ? 'Loading...' : 'Absensi Pulang'}</button>
+      <span onClick={handlePulang} disabled={loading} type="button" className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900">{loading ? 'Loading...' : 'Absensi Pulang'}</span>
 
-      {/* {showPulangButton && } */}
-      {/* <button onClick={handlePulang} disabled={loading}>{loading ? 'Loading...' : 'Absensi Pulang'}</button> */}
-      {/* {loading && <div>Loading...</div>} */}
+      
     </>
   );
 };
