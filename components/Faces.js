@@ -39,12 +39,32 @@ const Faces = () => {
         setIpAddress(ipRes.data.ip);
 
         const locationRes = await axios.get(`https://ipapi.co/${ipRes.data.ip}/json/`);
-        setLocation({ lat: locationRes.data.latitude, lon: locationRes.data.longitude });
+        //setLocation({ lat: locationRes.data.latitude, lon: locationRes.data.longitude });
       } catch (error) {
         // console.error('Failed to fetch IP and location', error);
       }
     }
     fetchIpAndLocation();
+
+    // Fungsi untuk mengambil lokasi berbasis GPS
+    async function fetchGpsLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setLocation({ lat: latitude, lon: longitude });
+          },
+          (error) => {
+            console.error("Error fetching GPS location:", error);
+            // Fallback jika gagal mendapat GPS, bisa Anda tambahkan logic lain di sini
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    }
+
+  fetchGpsLocation();
   }, []);
 
   useEffect(() => {
@@ -116,7 +136,7 @@ const Faces = () => {
     const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
     // Batasan waktu absensi dari jam 06:00 sampai 15:00 WIB di hari kerja (Senin - Jumat)
-    return day >= 1 && day <= 5 && (hours >= 6 && (hours < 9 || (hours === 9 && minutes === 0)));
+    return day >= 1 && day <= 5 && (hours >= 5 && (hours < 9 || (hours === 9 && minutes === 0)));
   };
 
   const isWithinAllowedTimeForPulang = () => {
