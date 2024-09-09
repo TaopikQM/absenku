@@ -169,7 +169,7 @@ const Faces = () => {
   const handleScan = async () => {
     setLoading(true);
     if (!isWithinAllowedTime()) {
-        alert('Absensi hanya bisa dilakukan antara pukul 06:00 WIB dan 15:00 WIB pada hari Senin hingga Jumat.');
+        alert('Absensi hanya bisa dilakukan antara pukul 06:00 WIB dan 09:00 WIB pada hari Senin hingga Jumat.');
         setLoading(false);
         return;
     }
