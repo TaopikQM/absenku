@@ -283,8 +283,9 @@ const Faces = () => {
     await set(attendanceRef, attendanceData);
 
     // Simpan data absenh di tabel absenh
-    const absenhRef = ref(rtdb, `kp/magang/absenh/${formattedDate}/attendance/${userName}`);
-    await set(absenhRef, {
+    const absenhRef = ref(rtdb, `kp/magang/absenh/${formattedDate}/attendance`);
+    const newAbsenhRef = push(absenhRef);
+    await set(newAbsenhRef, {
       name: userName,
       // nim: userNim,
       idabsen:  userId,
@@ -296,7 +297,11 @@ const Faces = () => {
       kegiatan: '', // Nilai ini akan diupdate saat absensi pulang
     });
 
+    // alert('Absensi berhasil disimpan!');
+    const absensiId = newAbsenhRef.key;// Simpan absensiId untuk digunakan nanti
+    sessionStorage.setItem('absensiId', absensiId); // Simpan absensiId ke sessionStorage untuk digunakan saat absensi pulang
     alert('Absensi berhasil disimpan!');
+    return absensiId;
   };
 
   const handlePulang = async () => {
@@ -421,8 +426,10 @@ const Faces = () => {
 
     // console.log(`Attendance data for ${userId} on ${formattedDate} has been saved.`);
 
+    
+    const absensiId = sessionStorage.getItem('absensiId'); 
     // Save a copy based on username
-    const absenhRef = ref(rtdb, `kp/magang/absenh/${formattedDate}/attendance/${userName}`);
+    const absenhRef = ref(rtdb, `kp/magang/absenh/${formattedDate}/attendance/${absensiId}`);
     await update(absenhRef, {
         timot: formattedTime,
         kegiatan: kegiatan
