@@ -405,7 +405,7 @@ const Faces = () => {
                   if (kegiatanInput) {
                     const absensiId = await saveAttendance1(currentUserId, matchedName, kegiatanInput);
                     await pulangVideo(absensiId, videoBlob); // Upload video to Firebase Storage
-                    alert('Absensi pulang berhasil.\nTerima kasih untuk hari ini');
+                    alert(`Absensi pulang berhasil: ${matchedName}\nTerima kasih untuk hari ini`);
                     setLoading(true);
                   }
                   else {
