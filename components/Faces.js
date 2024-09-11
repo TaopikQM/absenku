@@ -469,6 +469,7 @@ const Faces = () => {
     // console.log(`Absenh data for ${userName} on ${formattedDate} has been updated.`);
 
     //alert('Absensi berhasil.');
+    return absensiId;
   };
 
   const pulangVideo = async (absensiId, videoBlob) => {
