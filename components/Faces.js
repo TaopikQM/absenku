@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
 import axios from 'axios';
 import { ref, push, set, update, get, onValue } from 'firebase/database';
-import { rtdb } from '../config/firebase';
+import { rtdb, storage  } from '../config/firebase';
+import { uploadBytes, getDownloadURL, ref as storageRef } from 'firebase/storage'; // Import Firebase Storage
+
+
 
 const Faces = () => {
   const [isRegistered, setIsRegistered] = useState(false);
@@ -16,6 +19,8 @@ const Faces = () => {
   const [showDinasButton, setShowDinasButton] = useState(false);
 
   const [cameraStarted, setCameraStarted] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [videoBlob, setVideoBlob] = useState(null); // Untuk menyimpan rekaman video
 
   const kominfoLocation = {
     lat: -6.99306,  // Latitude Kominfo Jateng
@@ -83,50 +88,44 @@ const Faces = () => {
     return btoa([...crypto.getRandomValues(new Uint8Array(length))].map(b => String.fromCharCode(b)).join(''));
   };
 
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      if (mediaRecorder && mediaRecorder.stream) {
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [mediaRecorder]);
+
   const startVideo = async () => {
     setLoading(true);
     const video = document.getElementById('video');
-    // navigator.mediaDevices.getUserMedia({ video: {} })
-    //   .then(stream => {
-        
-    //     video.srcObject = stream;
-    //     setCameraStarted(true); // Kamera telah dimulai
-    //     setLoading(false);
-    //   });
 
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-        video.srcObject = stream;
-        setCameraStarted(true);
-      } 
-      // catch (error) {
-      //   console.error('Failed to start the camera', error);
-      // } 
-      finally {
-        setLoading(false);
-      }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+      setCameraStarted(true);
 
+      // Start recording the video
+      const recorder = new MediaRecorder(stream);
+      setMediaRecorder(recorder);
 
-      // video.addEventListener('play', () => {
-      //   const canvas = faceapi.createCanvasFromMedia(video);
-      //   document.body.append(canvas); // Tambahkan canvas ke body atau ke elemen div tertentu
-      //   faceapi.matchDimensions(canvas, { width: video.width, height: video.height });
-  
-      //   const displaySize = { width: video.width, height: video.height };
-      //   faceapi.matchDimensions(canvas, displaySize);
-  
-      //   const detectFaces = async () => {
-      //     const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
-      //     const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      //     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); // Bersihkan canvas
-      //     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-      //     requestAnimationFrame(detectFaces); // Panggil lagi untuk deteksi berikutnya
-      //   };
-  
-      //   detectFaces(); // Mulai deteksi wajah
-      // });
-    //   setLoading(false);
-    // }
+      let chunks = [];
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/mp4' });
+        setVideoBlob(blob); // Simpan blob video untuk di-upload ke storage
+      };
+
+      recorder.start();
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isWithinAllowedTime = () => {
@@ -217,12 +216,6 @@ const Faces = () => {
                     matchedName = userData.name; // Save the name that matches
                     currentUserId = key; // Save user ID
 
-
-                  //   if (distanceToKominfo > 3) { // Radius batas jarak dalam kilometer
-                  //     alert('Lokasi Anda tidak sesuai.');
-                  //     setLoading(false);
-                  //     return;
-                  // }
                     break; // Exit loop once a match is found
                 }
             }
@@ -239,18 +232,31 @@ const Faces = () => {
             const userDetails = Object.values(usersData).find(user => user.name === matchedName);
 
             if (userDetails && userDetails.status === 'ACTIVE') {
-                // Call saveAttendance function
-                await saveAttendance(currentUserId, matchedName);
-                alert(`Absensi berhasil untuk: ${matchedName}`);
+              mediaRecorder.stop();
+
+              // Save attendance and upload video
+              
+              if (videoBlob) {
+                const absensiId = await saveAttendance(currentUserId, matchedName);
+                await hadirVideo(absensiId, videoBlob); // Upload video to Firebase Storage
+                alert(`Absensi berhasil untuk: ${matchedName}\nSemangat Menjalani hari ini`);
+                setLoading(true);
+              }
+              else {
+                alert('ulangi sekali lagi untuk validasi data.');
+                setLoading(false);
+              }
             } else {
                 alert('Status pengguna tidak aktif. Silakan hubungi admin.');
+                setLoading(false);
             }
         } else {
             alert('Pengguna tidak ditemukan di sistem.');
+            setLoading(false);
         }
     } else {
         alert('Pengguna tidak ditemukan. Silakan registrasi terlebih dahulu.');
-        setIsRegistered(false);
+        // setIsRegistered(false);
     }
 
     setLoading(false);
@@ -300,8 +306,27 @@ const Faces = () => {
     // alert('Absensi berhasil disimpan!');
     const absensiId = newAbsenhRef.key;// Simpan absensiId untuk digunakan nanti
     sessionStorage.setItem('absensiId', absensiId); // Simpan absensiId ke sessionStorage untuk digunakan saat absensi pulang
-    alert('Absensi berhasil disimpan!');
+    //alert('Absensi berhasil disimpan!');
     return absensiId;
+  };
+
+  const hadirVideo = async (absensiId, videoBlob) => {
+    const date = new Date();
+    const formattedDate = date.toISOString().split('T')[0];
+    const videoFileName = `${absensiId}.mp4`;
+    const videoStorageRef = storageRef(storage, `kp/magang/absenuj/${formattedDate}/attendance/${absensiId}/bhadir/${videoFileName}`);
+
+    try {
+      await uploadBytes(videoStorageRef, videoBlob);
+      const videoURL = await getDownloadURL(videoStorageRef);
+
+      // Simpan URL video ke dalam absensi
+      const attendanceRef = ref(rtdb, `kp/magang/absenuj/${formattedDate}/attendance/${absensiId}/bhadir`);
+      await set(attendanceRef, videoURL);
+      // console.log('Video berhasil di-upload dan URL disimpan.');
+    } catch (error) {
+      // console.error('Gagal upload video:', error);
+    }
   };
 
   const handlePulang = async () => {
@@ -372,20 +397,26 @@ const Faces = () => {
 
           if (userDetails && userDetails.status === 'ACTIVE') {
               // Check if user has already clocked out
-              const attendanceRef = ref(rtdb, `kp/magang/absen/${currentUserId}/attendance/${formattedDate}`);
-              const attendanceSnapshot = await get(attendanceRef);
-
-              if (attendanceSnapshot.exists() && attendanceSnapshot.val().timot) {
-                  alert('Anda sudah melakukan absensi pulang hari ini.');
-              } else {
+              mediaRecorder.stop();
+                // const kegiatanInput = prompt('Masukkan kegiatan hari ini:');
+                if (videoBlob) {
                   const kegiatanInput = prompt('Masukkan kegiatan hari ini:');
+                  
                   if (kegiatanInput) {
-                      await saveAttendance1(currentUserId, matchedName, kegiatanInput);
-                      alert('Absensi pulang berhasil.');
-                  } else {
-                      alert('Kegiatan tidak boleh kosong.');
+                    const absensiId = await saveAttendance1(currentUserId, matchedName, kegiatanInput);
+                    await pulangVideo(absensiId, videoBlob); // Upload video to Firebase Storage
+                    alert('Absensi pulang berhasil.\nTerima kasih untuk hari ini');
+                    setLoading(true);
                   }
-              }
+                  else {
+                    alert('Kegiatan tidak boleh kosong.');
+                    setLoading(false);
+                  }
+                }
+                else {
+                  alert('ulangi sekali lagi untuk validasi data.');
+                  setLoading(false);
+                }
           } else {
               alert('Status pengguna tidak aktif. Silakan hubungi admin.');
           }
@@ -437,7 +468,26 @@ const Faces = () => {
 
     // console.log(`Absenh data for ${userName} on ${formattedDate} has been updated.`);
 
-    alert('Absensi berhasil.');
+    //alert('Absensi berhasil.');
+  };
+
+  const pulangVideo = async (absensiId, videoBlob) => {
+    const date = new Date();
+    const formattedDate = date.toISOString().split('T')[0];
+    const videoFileName = `${absensiId}.mp4`;
+    const videoStorageRef = storageRef(storage, `kp/magang/absenuj/${formattedDate}/attendance/${absensiId}/bpulang/${videoFileName}`);
+
+    try {
+      await uploadBytes(videoStorageRef, videoBlob);
+      const videoURL = await getDownloadURL(videoStorageRef);
+
+      // Simpan URL video ke dalam absensi
+      const attendanceRef = ref(rtdb, `kp/magang/absenuj/${formattedDate}/attendance/${absensiId}/bpulang`);
+      await set(attendanceRef, videoURL);
+      // console.log('Video berhasil di-upload dan URL disimpan.');
+    } catch (error) {
+      // console.error('Gagal upload video:', error);
+    }
   };
 
   const handleOutOfTownAttendance = async (userId, userName) => {
