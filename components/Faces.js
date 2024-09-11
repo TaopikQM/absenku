@@ -314,14 +314,14 @@ const Faces = () => {
     const date = new Date();
     const formattedDate = date.toISOString().split('T')[0];
     const videoFileName = `${absensiId}.mp4`;
-    const videoStorageRef = storageRef(storage, `kp/magang/absenuj/${formattedDate}/attendance/${absensiId}/bhadir/${videoFileName}`);
+    const videoStorageRef = storageRef(storage, `kp/magang/absenh/${formattedDate}/attendance/${absensiId}/bhadir/${videoFileName}`);
 
     try {
       await uploadBytes(videoStorageRef, videoBlob);
       const videoURL = await getDownloadURL(videoStorageRef);
 
       // Simpan URL video ke dalam absensi
-      const attendanceRef = ref(rtdb, `kp/magang/absenuj/${formattedDate}/attendance/${absensiId}/bhadir`);
+      const attendanceRef = ref(rtdb, `kp/magang/absenh/${formattedDate}/attendance/${absensiId}/bhadir`);
       await set(attendanceRef, videoURL);
       // console.log('Video berhasil di-upload dan URL disimpan.');
     } catch (error) {
@@ -475,14 +475,14 @@ const Faces = () => {
     const date = new Date();
     const formattedDate = date.toISOString().split('T')[0];
     const videoFileName = `${absensiId}.mp4`;
-    const videoStorageRef = storageRef(storage, `kp/magang/absenuj/${formattedDate}/attendance/${absensiId}/bpulang/${videoFileName}`);
+    const videoStorageRef = storageRef(storage, `kp/magang/absenh/${formattedDate}/attendance/${absensiId}/bpulang/${videoFileName}`);
 
     try {
       await uploadBytes(videoStorageRef, videoBlob);
       const videoURL = await getDownloadURL(videoStorageRef);
 
       // Simpan URL video ke dalam absensi
-      const attendanceRef = ref(rtdb, `kp/magang/absenuj/${formattedDate}/attendance/${absensiId}/bpulang`);
+      const attendanceRef = ref(rtdb, `kp/magang/absenh/${formattedDate}/attendance/${absensiId}/bpulang`);
       await set(attendanceRef, videoURL);
       // console.log('Video berhasil di-upload dan URL disimpan.');
     } catch (error) {
