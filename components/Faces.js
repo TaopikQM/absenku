@@ -232,19 +232,27 @@ const Faces = () => {
             const userDetails = Object.values(usersData).find(user => user.name === matchedName);
 
             if (userDetails && userDetails.status === 'ACTIVE') {
-              mediaRecorder.stop();
+              const attendanceRef = ref(rtdb, `kp/magang/absenu/${currentUserId}/attendance/${formattedDate}`);
+              const attendanceSnapshot = await get(attendanceRef);
 
-              // Save attendance and upload video
-              
-              if (videoBlob) {
-                const absensiId = await saveAttendance(currentUserId, matchedName);
-                await hadirVideo(absensiId, videoBlob); // Upload video to Firebase Storage
-                alert(`Absensi berhasil untuk: ${matchedName}\nSemangat Menjalani hari ini`);
-                setLoading(true);
+              if (attendanceSnapshot.exists() && attendanceSnapshot.val().timot) {
+                  alert('Anda sudah melakukan absensi pulang hari ini.');
+                  setLoading(false);
               }
-              else {
-                alert('ulangi sekali lagi untuk validasi data.');
-                setLoading(false);
+                mediaRecorder.stop();
+  
+                // Save attendance and upload video
+                
+                if (videoBlob) {
+                  const absensiId = await saveAttendance(currentUserId, matchedName);
+                  await hadirVideo(absensiId, videoBlob); // Upload video to Firebase Storage
+                  alert(`Absensi berhasil untuk: ${matchedName}\nSemangat Menjalani hari ini`);
+                  setLoading(true);
+                }
+                else {
+                  alert('ulangi sekali lagi untuk validasi data.');
+                  setLoading(false);
+                }
               }
             } else {
                 alert('Status pengguna tidak aktif. Silakan hubungi admin.');
