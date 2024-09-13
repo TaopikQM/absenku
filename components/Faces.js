@@ -232,13 +232,13 @@ const Faces = () => {
             const userDetails = Object.values(usersData).find(user => user.name === matchedName);
 
             if (userDetails && userDetails.status === 'ACTIVE') {
-              const attendanceRef = ref(rtdb, `kp/magang/absenu/${currentUserId}/attendance/${formattedDate}`);
-              const attendanceSnapshot = await get(attendanceRef);
+              // const attendanceRef = ref(rtdb, `kp/magang/absenu/${currentUserId}/attendance/${formattedDate}`);
+              // const attendanceSnapshot = await get(attendanceRef);
 
-              if (attendanceSnapshot.exists() && attendanceSnapshot.val().timot) {
-                  alert('Anda sudah melakukan absensi pulang hari ini.');
-                  setLoading(false);
-              }
+              // if (attendanceSnapshot.exists() && attendanceSnapshot.val().timot) {
+              //     alert('Anda sudah melakukan absensi pulang hari ini.');
+              //     setLoading(false);
+              // }
                 mediaRecorder.stop();
   
                 // Save attendance and upload video
@@ -253,7 +253,7 @@ const Faces = () => {
                   alert('ulangi sekali lagi untuk validasi data.');
                   setLoading(false);
                 }
-              }
+              
             } else {
                 alert('Status pengguna tidak aktif. Silakan hubungi admin.');
                 setLoading(false);
@@ -404,6 +404,13 @@ const Faces = () => {
           const userDetails = Object.values(usersData).find(user => user.name === matchedName);
 
           if (userDetails && userDetails.status === 'ACTIVE') {
+            const attendanceRef = ref(rtdb, `kp/magang/absenu/${currentUserId}/attendance/${formattedDate}`);
+              const attendanceSnapshot = await get(attendanceRef);
+
+              if (attendanceSnapshot.exists() && attendanceSnapshot.val().timot) {
+                  alert('Anda sudah melakukan absensi pulang hari ini.');
+                  setLoading(false);
+              }
               // Check if user has already clocked out
               mediaRecorder.stop();
                 // const kegiatanInput = prompt('Masukkan kegiatan hari ini:');
