@@ -145,7 +145,7 @@ const Faces = () => {
 
     // Batasan waktu pulang
     if (day === 5) { // Jumat
-      return hours >= 13 && hours < 17;
+      return hours > 13 && hours < 17;
     } else if (day >= 1 && day <= 4) { // Senin - Kamis
       return hours >= 14 && hours < 17;
     }
