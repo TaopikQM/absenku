@@ -1027,7 +1027,7 @@ const Faces = () => {
     const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
     // Batasan waktu absensi dari jam 06:00 sampai 15:00 WIB di hari kerja (Senin - Jumat)
-    return day >= 1 && day <= 5 && (hours >= 5 && (hours < 9 || (hours === 9 && minutes === 0)));
+    return day >= 1 && day <= 4 && (hours >= 4 && (hours < 9 || (hours === 9 && minutes === 0)));
   };
 
   const isWithinAllowedTimeForPulang = () => {
