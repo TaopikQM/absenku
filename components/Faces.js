@@ -1,128 +1,3 @@
-// import React, { useState, useEffect, useRef } from 'react';
-// import * as faceapi from 'face-api.js';
-// import axios from 'axios';
-// import { ref, push, set, update, get, onValue } from 'firebase/database';
-// import { rtdb, storage  } from '../config/firebase';
-// import { uploadBytes, getDownloadURL, ref as storageRef } from 'firebase/storage'; // Import Firebase Storage
-
-
-
-// const Faces = () => {
-//   const [isRegistered, setIsRegistered] = useState(false);
-//   const [location, setLocation] = useState(null);//{ lat: null, lon: null }
-//   const [latitude, setLatitude] = useState(null);
-//   const [longitude, setLongitude] = useState(null);
-//   const [ipAddress, setIpAddress] = useState('');
-//   const [loading, setLoading] = useState(false);
-  
-//   const [cameraStarted, setCameraStarted] = useState(false);
-//   const currentHour = new Date().getHours(); // Mendapatkan jam saat ini
-//   const canvasRef = useRef(null);
-//   const videoRef = useRef(null);  
-//   const kominfoLocation = {
-//     lat: -6.99306,  // Latitude Kominfo Jateng
-//     lon: 110.42083, // Longitude Kominfo Jateng
-//   }
- 
-
-//   const startVideo = async () => {
-//     setLoading(true);
-//     await loadModelsAndStartVideo();
-//     // setCameraStarted(true);
-//     setLoading(false);
-//   };
-
-//   const loadModelsAndStartVideo = async () => {
-//     // Load model Face API
-//     await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
-//     await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-//     await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-//     await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-//     await faceapi.nets.faceExpressionNet.loadFromUri('/models');
-
-//     // Akses video dari elemen yang ada
-//     // const video = document.getElementById('video');
-//     const video = videoRef.current;
-    
-//     // Mulai video webcam
-//     // navigator.mediaDevices.getUserMedia({ video: {} })
-//     //   .then(stream => {
-//     //     video.srcObject = stream;
-//     //   })
-//     //   .catch(err => console.error("Error accessing webcam: ", err));
-//         const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-//         video.srcObject = stream;
-//         setCameraStarted(true);
-
-//     // Saat video mulai diputar, jalankan deteksi wajah secara berkala
-//     video.addEventListener('play', () => {
-//       // Pastikan canvas dan video sudah siap
-//       if (canvasRef.current && video) {
-//         const canvas = canvasRef.current;
-
-//         canvas.width = video.videoWidth;
-//         canvas.height = video.videoHeight;
-
-//         const displaySize = { width: video.videoWidth, height: video.videoHeight };
-        
-//         // Sesuaikan dimensi canvas dengan video
-//         faceapi.matchDimensions(canvas, displaySize);
-        
-//         setInterval(async () => {
-//           const detections = await faceapi.detectAllFaces(
-//             video,
-//             new faceapi.TinyFaceDetectorOptions()
-//           ).withFaceLandmarks().withFaceDescriptors();
-
-//           // Bersihkan canvas sebelum menggambar
-//           const resizedDetections = faceapi.resizeResults(detections, displaySize);
-//           const ctx = canvas.getContext('2d');
-//           ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//           // Gambar deteksi wajah dan landmark di canvas
-//           faceapi.draw.drawDetections(canvas, resizedDetections);
-//           faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-
-//           // // Periksa kecocokan wajah dengan API
-//           // for (const detection of resizedDetections) {
-//           //   const userDescriptor = detection.descriptor;
-//           //   const descriptorResponse = await axios.post('/api/faces', {
-//           //     action: 'checkDescriptor',
-//           //     descriptor: Array.from(userDescriptor) // Mengonversi ke array
-//           //   });
-
-//           //   if (descriptorResponse.data.exists) {
-//           //     const matchedName = descriptorResponse.data.name;
-//           //     // Tampilkan nama di kanvas
-//           //     ctx.font = '24px Arial';
-//           //     ctx.fillStyle = 'red';
-//           //     ctx.fillText(matchedName, detection.detection.box.x, detection.detection.box.y);
-//           //   }
-//           // }
-//         }, 100);
-//       }
-//     });
-//   };
-  
-
-//   return (
-//     <>
-      
-//     <div style={{ position: 'relative', width: '100%', maxWidth: '720px' }}>
-//     <video ref={videoRef} autoPlay muted style={{ width: '100%', height: 'auto', display: cameraStarted ? 'block' : 'none'  }} />
-//     <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 'auto',display: cameraStarted ? 'block' : 'none'  }} />
-  
-//     </div>
-//     {!cameraStarted && (
-//       <span onClick={startVideo} disabled={loading} type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">{loading ? 'Loading...' : 'Start Kamera'}</span> 
-//     )}
-      
-//     </>
-//   );
-// };
-
-// export default Faces;
-
 
 
 
@@ -140,7 +15,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-//import * as faceapi from 'face-api.js';
+import * as faceapi from 'face-api.js';
 import axios from 'axios';
 import { ref, push, set, update, get, onValue } from 'firebase/database';
 import { rtdb, storage  } from '../config/firebase';
@@ -707,6 +582,147 @@ const Faces = () => {
 };
 
 export default Faces;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState, useEffect, useRef } from 'react';
+// import * as faceapi from 'face-api.js';
+// import axios from 'axios';
+// import { ref, push, set, update, get, onValue } from 'firebase/database';
+// import { rtdb, storage  } from '../config/firebase';
+// import { uploadBytes, getDownloadURL, ref as storageRef } from 'firebase/storage'; // Import Firebase Storage
+
+
+
+// const Faces = () => {
+//   const [isRegistered, setIsRegistered] = useState(false);
+//   const [location, setLocation] = useState(null);//{ lat: null, lon: null }
+//   const [latitude, setLatitude] = useState(null);
+//   const [longitude, setLongitude] = useState(null);
+//   const [ipAddress, setIpAddress] = useState('');
+//   const [loading, setLoading] = useState(false);
+  
+//   const [cameraStarted, setCameraStarted] = useState(false);
+//   const currentHour = new Date().getHours(); // Mendapatkan jam saat ini
+//   const canvasRef = useRef(null);
+//   const videoRef = useRef(null);  
+//   const kominfoLocation = {
+//     lat: -6.99306,  // Latitude Kominfo Jateng
+//     lon: 110.42083, // Longitude Kominfo Jateng
+//   }
+ 
+
+//   const startVideo = async () => {
+//     setLoading(true);
+//     await loadModelsAndStartVideo();
+//     // setCameraStarted(true);
+//     setLoading(false);
+//   };
+
+//   const loadModelsAndStartVideo = async () => {
+//     // Load model Face API
+//     await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+//     await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+//     await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+//     await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+//     await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+
+//     // Akses video dari elemen yang ada
+//     // const video = document.getElementById('video');
+//     const video = videoRef.current;
+    
+//     // Mulai video webcam
+//     // navigator.mediaDevices.getUserMedia({ video: {} })
+//     //   .then(stream => {
+//     //     video.srcObject = stream;
+//     //   })
+//     //   .catch(err => console.error("Error accessing webcam: ", err));
+//         const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+//         video.srcObject = stream;
+//         setCameraStarted(true);
+
+//     // Saat video mulai diputar, jalankan deteksi wajah secara berkala
+//     video.addEventListener('play', () => {
+//       // Pastikan canvas dan video sudah siap
+//       if (canvasRef.current && video) {
+//         const canvas = canvasRef.current;
+
+//         canvas.width = video.videoWidth;
+//         canvas.height = video.videoHeight;
+
+//         const displaySize = { width: video.videoWidth, height: video.videoHeight };
+        
+//         // Sesuaikan dimensi canvas dengan video
+//         faceapi.matchDimensions(canvas, displaySize);
+        
+//         setInterval(async () => {
+//           const detections = await faceapi.detectAllFaces(
+//             video,
+//             new faceapi.TinyFaceDetectorOptions()
+//           ).withFaceLandmarks().withFaceDescriptors();
+
+//           // Bersihkan canvas sebelum menggambar
+//           const resizedDetections = faceapi.resizeResults(detections, displaySize);
+//           const ctx = canvas.getContext('2d');
+//           ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//           // Gambar deteksi wajah dan landmark di canvas
+//           faceapi.draw.drawDetections(canvas, resizedDetections);
+//           faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+
+//           // // Periksa kecocokan wajah dengan API
+//           // for (const detection of resizedDetections) {
+//           //   const userDescriptor = detection.descriptor;
+//           //   const descriptorResponse = await axios.post('/api/faces', {
+//           //     action: 'checkDescriptor',
+//           //     descriptor: Array.from(userDescriptor) // Mengonversi ke array
+//           //   });
+
+//           //   if (descriptorResponse.data.exists) {
+//           //     const matchedName = descriptorResponse.data.name;
+//           //     // Tampilkan nama di kanvas
+//           //     ctx.font = '24px Arial';
+//           //     ctx.fillStyle = 'red';
+//           //     ctx.fillText(matchedName, detection.detection.box.x, detection.detection.box.y);
+//           //   }
+//           // }
+//         }, 100);
+//       }
+//     });
+//   };
+  
+
+//   return (
+//     <>
+      
+//     <div style={{ position: 'relative', width: '100%', maxWidth: '720px' }}>
+//     <video ref={videoRef} autoPlay muted style={{ width: '100%', height: 'auto', display: cameraStarted ? 'block' : 'none'  }} />
+//     <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 'auto',display: cameraStarted ? 'block' : 'none'  }} />
+  
+//     </div>
+//     {!cameraStarted && (
+//       <span onClick={startVideo} disabled={loading} type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">{loading ? 'Loading...' : 'Start Kamera'}</span> 
+//     )}
+      
+//     </>
+//   );
+// };
+
+// export default Faces;
+
 
 // import React, { useState, useEffect } from 'react';
 // import * as faceapi from 'face-api.js';
