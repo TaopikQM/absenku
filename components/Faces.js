@@ -689,6 +689,184 @@ const Faces = () => {
       }
     });
   };
+
+   const fetchIpAndLocation = async () => {
+    try {
+      const ipRes = await axios.get('https://api.ipify.org?format=json');
+      setIpAddress(ipRes.data.ip);
+
+      // Jika ingin menggunakan API eksternal untuk lokasi IP:
+      // const locationRes = await axios.get(`https://ipapi.co/${ipRes.data.ip}/json/`);
+      // setLocation({ latitude: locationRes.data.latitude, longitude: locationRes.data.longitude });
+    } catch (error) {
+      console.error('Failed to fetch IP and location', error);
+    }
+  };
+   // Fungsi untuk mengambil lokasi berbasis GPS
+   const fetchGpsLocation = async () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          setLocation({latitude,longitude });
+          setLatitude(latitude);
+          setLongitude(longitude);
+          
+        },
+        (error) => {
+          console.error("Error fetching GPS location:", error);
+          // Fallback jika gagal mendapat GPS, bisa Anda tambahkan logic lain di sini
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  };
+ 
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const toRadians = (degree) => degree * (Math.PI / 180);
+    const R = 6371; // Radius bumi dalam kilometer
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Jarak dalam kilometer
+  };
+
+  const checkLocationAndDistance = async () => {
+    if (latitude && longitude) {
+      const distanceToKominfo = calculateDistance(latitude, longitude, kominfoLocation.lat, kominfoLocation.lon);
+    
+      if (distanceToKominfo > 2) {
+        alert('Lokasi Anda tidak sesuai dengan lokasi kantor.');
+        setLoading(false); 
+      }
+      //  else {
+      //   // alert('Lokasi Anda sesuai dengan lokasi kantor.');
+      //   setLoading(false); // Jika loading sudah dilakukan
+      // }
+    }
+  };
+
+  // useEffect untuk menjalankan pengecekan setelah lokasi diperoleh
+  useEffect(() => {
+    fetchIpAndLocation();
+    fetchGpsLocation();
+    
+    checkLocationAndDistance();
+  }, [latitude, longitude]); // Jalankan saat latitude atau longitude berubah
+
+  const isWithinAllowedTime = () => {
+    const now = new Date();
+    const hours = now.getUTCHours() + 7; // Convert to WIB (UTC+7)
+    const minutes = now.getUTCMinutes();
+    const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+     return day >= 1 && day <= 5 && (hours >= 4 && (hours < 9 || (hours === 9 && minutes === 0)));
+  }; 
+
+  const isWithinAllowedTimeForPulang = () => {
+    const now = new Date();
+    const hours = now.getUTCHours() + 7; // Convert to WIB (UTC+7)
+    const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+    // Batasan waktu pulang
+    if (day === 5) { // Jumat
+      return hours >= 13 && hours < 18;
+    } else if (day >= 1 && day <= 4) { // Senin - Kamis
+      return hours >= 14 && hours < 18;
+    }
+    return false;
+  };
+
+   // Placeholder function for handleRegister
+  const handleRegister = async (userNim) => {
+    setLoading(true);
+    const video = document.getElementById('video');
+    const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
+
+    if (detections.length === 0) {
+        alert('Wajah tidak terdeteksi.');
+        return;
+    }
+
+    const userDescriptor = detections[0].descriptor;
+    const kpAbsenRef = ref(rtdb, 'kp/magang/absen');
+    const snapshot = await get(kpAbsenRef);
+    const absenData = snapshot.val();
+    let descriptorExists = false;
+    let existingUserId = null;
+
+    if (absenData) {
+        for (const key in absenData) {
+            const userData = absenData[key];
+            if (userData && userData.descriptor) {
+                const storedDescriptor = new Float32Array(userData.descriptor);
+                const distance = faceapi.euclideanDistance(userDescriptor, storedDescriptor);
+
+                if (distance < 0.5) { // Sesuaikan threshold jika perlu
+                    descriptorExists = true;
+                    existingUserId = key; // Simpan ID user yang sudah ada
+                    break;
+                }
+            }
+        }
+    }
+
+    if (descriptorExists) {
+        alert('Wajah sudah terdaftar. Silakan coba lagi nanti.');
+       } else {
+        const userName = prompt('Masukkan nama Anda:');
+        const kpUsersRef = ref(rtdb, 'kp/magang/users');
+        const usersSnapshot = await get(kpUsersRef);
+        const usersData = usersSnapshot.val();
+        let nameExists = false;
+        let isUserActive = false;
+
+        for (const key in usersData) {
+            const userData = usersData[key];
+            if (userData && userData.name === userName) {
+                nameExists = true;
+                existingUserId = key;
+                if (userData.status === 'ACTIVE') {
+                    isUserActive = true;
+                    return userData.nim;
+                }
+                break;
+            }
+        }
+
+        //const newUserRef = push(kpUsersRef); // Firebase akan otomatis memberikan ID unik di sini
+
+        if (nameExists) {
+          if (isUserActive) {
+            const newUser = {
+                id: generateId(),
+                name: userName,
+                nim: userNim,
+                descriptor: Array.from(userDescriptor),
+                
+            };
+          
+
+            const kpUsersRef = ref(rtdb, `kp/magangKom/absen/${newUser.id}`);
+            await set(kpUsersRef, newUser);
+
+            alert('Registrasi berhasil dan data disimpan untuk absen!');
+            setIsRegistered(true);
+        } else {
+            alert('Nama tidak ditemukan di sistem. Silakan hubungi admin.');
+          }
+      }else {
+        alert('Nama tidak ditemukan di sistem. Silakan hubungi admin.');
+      }
+    }
+    setLoading(false);
+  };
   
 
   return (
@@ -702,6 +880,8 @@ const Faces = () => {
     {!cameraStarted && (
       <span onClick={startVideo} disabled={loading} type="button" className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">{loading ? 'Loading...' : 'Start Kamera'}</span> 
     )}
+      <span onClick={handleRegister} disabled={loading} type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2  dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">{loading ? 'Loading...' : 'Registrasi'}</span> 
+     
       
     </>
   );
