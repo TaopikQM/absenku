@@ -1021,13 +1021,16 @@ const Faces = () => {
   };
 
   const isWithinAllowedTime = () => {
+    
     const now = new Date();
     const hours = now.getUTCHours() + 7; // Convert to WIB (UTC+7)
-    const minutes = now.getUTCMinutes();
     const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-    // Batasan waktu absensi dari jam 06:00 sampai 15:00 WIB di hari kerja (Senin - Jumat)
-    return day >= 1 && day <= 4 && (hours >= 4 && (hours < 9 || (hours === 9 && minutes === 0)));
+    // Batasan waktu pulang
+    if (day >= 1 && day <= 5) { // Jumat
+      return hours > 4 && hours < 9;
+    }
+    return false;
   };
 
   const isWithinAllowedTimeForPulang = () => {
